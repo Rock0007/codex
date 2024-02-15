@@ -1,15 +1,8 @@
-const router = require("express").Router();
-const cors = require("cors");
+const express = require("express");
 const passport = require("passport");
 const authController = require("../Controller/routeApi");
 
-// Middleware
-router.use(
-  cors({
-    credentials: true,
-    origin: process.env.ORIGIN,
-  })
-);
+const router = express.Router();
 
 // Test Route
 router.get("/", authController.test);
@@ -19,6 +12,7 @@ router.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
+
 router.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
@@ -27,6 +21,7 @@ router.get(
 
 // GitHub Login
 router.get("/auth/github", passport.authenticate("github"));
+
 router.get(
   "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/" }),
