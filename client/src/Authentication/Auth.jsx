@@ -1,11 +1,13 @@
 import React from "react";
 import { FaGoogle, FaGithub } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
+  const navigate = useNavigate();
   const handleGoogleLogin = async () => {
     try {
       // Redirect the user to the Google authentication URL
-      window.location.href = "http://localhost:8000/auth/google";
+      window.location.href = import.meta.env.VITE_REACT_APP_GOOGLE_AUTH;
     } catch (error) {
       console.error("Google login error:", error);
     }
@@ -13,11 +15,14 @@ const Auth = () => {
 
   const handleGitHubLogin = async () => {
     try {
-      // Redirect the user to the GitHub authentication URL
-      window.location.href = "http://localhost:8000/auth/github";
+      window.location.href = import.meta.env.VITE_REACT_APP_GITHUB_AUTH;
     } catch (error) {
       console.error("GitHub login error:", error);
     }
+  };
+
+  const redirectToHome = () => {
+    navigate("/home"); // Use navigate to navigate to the /home route
   };
 
   return (
@@ -31,7 +36,10 @@ const Auth = () => {
       <div className="mx-4 sm:mx-8 md:mx-12 lg:mx-16 xl:mx-20">
         <button
           className="flex items-center bg-white border border-black text-black px-4 py-2 rounded-md cursor-pointer"
-          onClick={handleGoogleLogin}
+          onClick={() => {
+            handleGoogleLogin();
+            redirectToHome();
+          }}
         >
           <FaGoogle className="mr-2" />
           Login with Google
@@ -43,7 +51,10 @@ const Auth = () => {
       <div className="mx-4 sm:mx-8 md:mx-12 lg:mx-16 xl:mx-20">
         <button
           className="flex items-center bg-gray-800 text-white px-4 py-2 rounded-md cursor-pointer"
-          onClick={handleGitHubLogin}
+          onClick={() => {
+            handleGitHubLogin();
+            redirectToHome();
+          }}
         >
           <FaGithub className="mr-2" />
           Login with GitHub

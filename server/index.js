@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv").config();
 const cors = require("cors");
+const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const session = require("express-session"); // Change this line
 const passport = require("./Middlewares/passport");
@@ -12,6 +13,7 @@ const app = express();
 const port = process.env.PORT;
 
 // Middleware
+app.use(helmet());
 app.use(
   cors({
     credentials: true,
