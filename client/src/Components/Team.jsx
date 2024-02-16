@@ -1,12 +1,12 @@
 import React from "react";
-import { Navbar, WelcomeCard } from "./index";
-const Home = () => {
+import { Navbar } from "./index";
+
+const Team = () => {
   return (
     <div className="w-full min-h-screen">
       <Navbar />
-      <WelcomeCard />
     </div>
   );
 };
 
-export default Home;
+export default Team;
