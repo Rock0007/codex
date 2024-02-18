@@ -5,7 +5,8 @@ const {
   test,
   registerUser,
   loginUser,
-  getProfile,
+  // getProfile,
+  users,
   logout,
   getProfileByID,
   getProfileByUsername,
@@ -28,13 +29,13 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 
 //Get Profile
-router.get("/profile", getProfile);
+router.get("/profile", users);
 
 //Get Profile by ID
 router.get("/profile/:id", getProfileByID);
 
 //Get Profile by Username
-router.get("/profile/:username", getProfileByUsername);
+router.get("/profile/user/:username", getProfileByUsername);
 
 //Logout
 router.delete("/logout", logout);
