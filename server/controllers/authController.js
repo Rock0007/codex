@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const User = require("../models/user");
 const { comparepassword, hashpassword } = require("../helpers/auth");
 const jwt = require("jsonwebtoken");
@@ -7,7 +8,6 @@ const test = async (req, res) => {
   res.json("test is working");
 };
 
-// RegisterUser
 const registerUser = async (req, res) => {
   try {
     const { username, email, password, confirmPassword } = req.body;
@@ -43,26 +43,15 @@ const registerUser = async (req, res) => {
       });
     }
 
-    // Check if the username already exists in the database
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
       return res.status(400).json({
-        error: "Username already exists.",
+        error: "Username or email already exists.",
       });
     }
 
-    // Check if the email already exists in the database
-    const existingEmail = await User.findOne({ email });
-    if (existingEmail) {
-      return res.status(400).json({
-        error: "Email already exists.",
-      });
-    }
-
-    // Hash the password
     const hashedPassword = await hashpassword(password);
 
-    // Create user in the database
     const user = await User.create({
       username,
       email,
@@ -78,24 +67,28 @@ const registerUser = async (req, res) => {
   }
 };
 
-//Login Endpoint
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    // Check if user exists
-    const user = await User.findOne({ email });
+    const { identifier, password } = req.body;
+    const isEmail = /^[^\s@]+@gmail\.com$/.test(identifier);
+
+    let user;
+    if (isEmail) {
+      user = await User.findOne({ email: identifier });
+    } else {
+      user = await User.findOne({ username: identifier });
+    }
+
     if (!user) {
-      // Return a 401 status code for unauthorized access
       return res.status(401).json({
         error: "Invalid credentials.",
       });
     }
-    // Check password
     const isPasswordMatch = await comparepassword(password, user.password);
+
     if (isPasswordMatch) {
-      // Generate JWT token
       const token = jwt.sign(
-        { email: user.email, id: user._id, name: user.name },
+        { email: user.email, id: user._id, username: user.username },
         process.env.JWT_SECRET
       );
       res.cookie("token", token, { httpOnly: true }).json(user);
@@ -113,14 +106,31 @@ const loginUser = async (req, res) => {
 };
 
 const getProfile = async (req, res) => {
-  const { token } = req.cookies;
   try {
-    if (token) {
-      const user = jwt.verify(token, process.env.JWT_SECRET);
-      res.json(user);
-    } else {
-      res.json(null);
+    const { token } = req.cookies;
+
+    if (!token) {
+      return res.status(401).json({
+        error: "Unauthorized. Token not provided.",
+      });
     }
+
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!user) {
+      return res.status(401).json({
+        error: "Unauthorized. Invalid token.",
+      });
+    }
+    const userDetails = await User.findById(user.id);
+
+    if (!userDetails) {
+      return res.status(404).json({
+        error: "User not found.",
+      });
+    }
+
+    res.json(userDetails);
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -129,9 +139,69 @@ const getProfile = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  try {
+    res.clearCookie("token").json({ message: "Logout successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error during logout" });
+  }
+};
+
+const getProfileByID = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error(error);
+
+    if (error instanceof mongoose.Error.CastError) {
+      return res.status(400).json({ error: "Invalid user ID format" });
+    } else if (error.name === "MongoError") {
+      return res.status(500).json({ error: "MongoDB error" });
+    }
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getProfileByUsername = async (req, res) => {
+  const username = req.params.username;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(username)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+    const user = await User.findById(username);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error(error);
+
+    if (error instanceof mongoose.Error.CastError) {
+      return res.status(400).json({ error: "Invalid user ID format" });
+    } else if (error.name === "MongoError") {
+      return res.status(500).json({ error: "MongoDB error" });
+    }
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   test,
   registerUser,
   loginUser,
   getProfile,
+  logout,
+  getProfileByID,
+  getProfileByUsername,
 };

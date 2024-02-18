@@ -6,6 +6,9 @@ const {
   registerUser,
   loginUser,
   getProfile,
+  logout,
+  getProfileByID,
+  getProfileByUsername,
 } = require("../controllers/authController");
 
 //middleware
@@ -26,5 +29,14 @@ router.post("/login", loginUser);
 
 //Get Profile
 router.get("/profile", getProfile);
+
+//Get Profile by ID
+router.get("/profile/:id", getProfileByID);
+
+//Get Profile by Username
+router.get("/profile/:username", getProfileByUsername);
+
+//Logout
+router.delete("/logout", logout);
 
 module.exports = router;
