@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { Main } from "./Containers/index";
-import { Login } from "./Authentication/index";
+import { Login, SignUp, ForgotPassword } from "./Authentication/index";
 import { Route, Routes } from "react-router-dom";
 import { UserContextProvider } from "./context/userContext";
 import { Blog, Community, Events, Home, News, Team } from "./Components/index";
@@ -21,6 +21,8 @@ const App = () => {
           <Route path="/team" element={<Team />} />
           <Route path="/news" element={<News />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
         </Routes>
       </UserContextProvider>
     </div>

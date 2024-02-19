@@ -229,7 +229,6 @@ module.exports = {
   test,
   registerUser,
   loginUser,
-  // getProfile,
   users,
   logout,
   getProfileByID,

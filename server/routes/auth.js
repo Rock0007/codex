@@ -5,7 +5,6 @@ const {
   test,
   registerUser,
   loginUser,
-  // getProfile,
   users,
   logout,
   getProfileByID,
@@ -20,6 +19,7 @@ router.use(
   })
 );
 
+//test
 router.get("/", test);
 
 //POST Register
